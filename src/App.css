@@ -1,0 +1,34 @@
+/* src/App.css */
+/* Tailwind CSS sudah menangani sebagian besar desain langsung di App.jsx */
+
+/* Menghapus gaya bawaan Vite yang bisa merusak layout aplikasi kita */
+#root {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+/* Memastikan background luar aplikasi menutupi seluruh layar browser */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #111827;
+  /* Warna gelap untuk latar belakang di luar frame HP */
+}
+
+/* Kelas khusus untuk menyembunyikan scrollbar pada menu horizontal (seperti daftar promo) */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  /* Untuk browser IE dan Edge */
+  scrollbar-width: none;
+  /* Untuk browser Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  /* Untuk browser Chrome, Safari, dan Opera */
+}

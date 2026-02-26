@@ -1,0 +1,10 @@
+/* src/index.css */
+/* Import framework Tailwind CSS (Versi 4+) */
+@import "tailwindcss";
+
+/* Font bawaan aplikasi agar seragam dan rapi */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
