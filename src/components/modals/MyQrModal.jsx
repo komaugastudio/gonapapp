@@ -1,5 +1,10 @@
+import React from 'react';
+import { X, QrCode, User } from 'lucide-react';
+import { auth } from '../../firebase';
+
 const MyQrModal = ({ onClose }) => {
-  const user = getAuth().currentUser;
+  const user = auth.currentUser;
+  
   return (
     <div className="fixed inset-0 z-[60] bg-black/60 flex flex-col justify-center items-center p-4">
       <div className="bg-white w-full max-w-sm rounded-3xl p-6 relative animate-in zoom-in-95 flex flex-col items-center text-center">
@@ -17,3 +22,5 @@ const MyQrModal = ({ onClose }) => {
     </div>
   );
 };
+
+export default MyQrModal;

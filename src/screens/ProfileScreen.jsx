@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
-import { 
-  ArrowLeft, Camera, Award, User, ChevronRight, MapPin, 
-  Shield, HelpCircle, Settings, ClipboardList, LogOut, 
-  Save, BellRing, Globe 
-} from 'lucide-react';
-import { useTranslation } from '../context/LanguageContext';
+import React, { useState, useEffect } from 'react';
+import { User, Shield, AlertCircle, History, ChevronRight, Tag, CreditCard, Settings, HelpCircle, LogOut, X, Mail } from 'lucide-react';
+import { signOut, sendEmailVerification } from 'firebase/auth';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { auth, db, appId } from '../firebase';
 
 const ProfileScreen = () => {
   const user = auth.currentUser;
   const [isVerified, setIsVerified] = useState(false);
-  const [showVerifyModal, setShowVerifyModal] = useState(false);
   
   useEffect(() => {
     if (!user) return;
@@ -47,3 +44,5 @@ const ProfileScreen = () => {
     </div>
   );
 };
+
+export default ProfileScreen;

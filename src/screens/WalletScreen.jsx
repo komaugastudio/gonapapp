@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Wallet, PlusCircle, ArrowUpRight, CheckCircle, CreditCard, QrCode } from 'lucide-react';
-import { useTranslation } from '../context/LanguageContext';
+import React, { useState, useContext } from 'react';
+import { PlusCircle, ScanLine, QrCode, ChevronRight } from 'lucide-react';
+import { WalletContext } from '../context/WalletContext';
+import { formatRp } from '../utils/format';
+import TopUpModal from '../components/modals/TopUpModal';
+import PayScannerModal from '../components/modals/PayScannerModal';
+import MyQrModal from '../components/modals/MyQrModal';
 
 const WalletScreen = () => {
   const { balance } = useContext(WalletContext);
@@ -13,8 +17,8 @@ const WalletScreen = () => {
         <p className="text-blue-100 text-sm mb-1">Saldo GonabPay</p>
         <span className="text-4xl font-bold">{formatRp(balance)}</span>
         <div className="mt-6 flex space-x-3">
-          <button onClick={() => setModalType('topup')} className="flex-1 bg-white text-blue-600 py-3 rounded-full font-bold flex justify-center space-x-2"><PlusCircle size={18}/><span>Top Up</span></button>
-          <button onClick={() => setModalType('bayar')} className="flex-1 bg-blue-700 text-white py-3 rounded-full font-bold flex justify-center space-x-2"><ScanLine size={18}/><span>Bayar</span></button>
+          <button onClick={() => setModalType('topup')} className="flex-1 bg-white text-blue-600 py-3 rounded-full font-bold flex justify-center items-center space-x-2"><PlusCircle size={18}/><span>Top Up</span></button>
+          <button onClick={() => setModalType('bayar')} className="flex-1 bg-blue-700 text-white py-3 rounded-full font-bold flex justify-center items-center space-x-2"><ScanLine size={18}/><span>Bayar</span></button>
         </div>
       </div>
       <div onClick={() => setModalType('qr')} className="mt-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer">
@@ -27,3 +31,5 @@ const WalletScreen = () => {
     </div>
   );
 };
+
+export default WalletScreen;

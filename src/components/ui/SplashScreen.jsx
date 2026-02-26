@@ -1,6 +1,4 @@
 import React from 'react';
-import { Bike } from 'lucide-react';
-import { useTranslation } from '../../context/LanguageContext';
 
 const SplashScreen = () => (
   <div className="flex flex-col items-center justify-center min-h-screen bg-green-600 text-white">
@@ -8,3 +6,5 @@ const SplashScreen = () => (
     <p className="text-green-100 font-medium">Pasti ada jalan di Nabire.</p>
   </div>
 );
+
+export default SplashScreen;

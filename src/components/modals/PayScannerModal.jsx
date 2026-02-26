@@ -1,3 +1,8 @@
+import React, { useState, useContext } from 'react';
+import { X, CheckCircle } from 'lucide-react';
+import { WalletContext } from '../../context/WalletContext';
+import { formatRp } from '../../utils/format';
+
 const PayScannerModal = ({ onClose }) => {
   const { balance, pay } = useContext(WalletContext);
   const [step, setStep] = useState('input'); 
@@ -58,3 +63,5 @@ const PayScannerModal = ({ onClose }) => {
     </div>
   );
 };
+
+export default PayScannerModal;

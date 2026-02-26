@@ -1,3 +1,6 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Bot, X, Send } from 'lucide-react';
+
 const GonabAIModal = ({ onClose }) => {
   const [messages, setMessages] = useState([
     { role: 'ai', text: 'Halo! Saya Gonab AI, asisten pintar kamu. Ada yang bisa saya bantu hari ini di Nabire?' }
@@ -100,3 +103,5 @@ const GonabAIModal = ({ onClose }) => {
     </div>
   );
 };
+
+export default GonabAIModal;

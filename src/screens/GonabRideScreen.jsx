@@ -1,3 +1,7 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, MapPin, Bike, Car, User, Clock, Wallet, Map as MapIcon } from 'lucide-react';
+
 const GonabRideScreen = () => {
   const navigate = useNavigate();
   const [pickup, setPickup] = useState('Oyehe, Nabire, Papua Tengah');
@@ -42,9 +46,16 @@ const GonabRideScreen = () => {
             <div className="flex items-center justify-between p-3 border border-green-500 bg-green-50 rounded-xl cursor-pointer">
               <div className="flex items-center space-x-4">
                 <Bike size={32} className="text-green-600" />
-                <div><h4 className="font-bold text-gray-800">GonabRide</h4><p className="text-xs text-gray-500">1 Orang • 3 mnt</p></div>
+                <div><h4 className="font-bold text-gray-800">GonabRide</h4><p className="text-xs text-gray-500 flex items-center"><User size={12} className="mr-1"/> 1 Orang • <Clock size={12} className="ml-2 mr-1"/> 3 mnt</p></div>
               </div>
               <p className="font-bold text-lg text-gray-800">Rp 12.000</p>
+            </div>
+            <div className="flex items-center justify-between p-3 border border-gray-200 hover:border-green-500 hover:bg-green-50 rounded-xl cursor-pointer transition-all">
+              <div className="flex items-center space-x-4">
+                <Car size={32} className="text-gray-600" />
+                <div><h4 className="font-bold text-gray-800">GonabCar</h4><p className="text-xs text-gray-500 flex items-center"><User size={12} className="mr-1"/> 1-4 Orang • <Clock size={12} className="ml-2 mr-1"/> 5 mnt</p></div>
+              </div>
+              <p className="font-bold text-lg text-gray-800">Rp 25.000</p>
             </div>
           </div>
         )}
@@ -55,3 +66,5 @@ const GonabRideScreen = () => {
     </div>
   );
 };
+
+export default GonabRideScreen;
