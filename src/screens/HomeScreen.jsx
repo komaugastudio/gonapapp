@@ -88,8 +88,8 @@ const HomeScreen = () => {
           <MenuIcon icon={<Car size={28} className="text-white" />} label="GonabCar" color="bg-green-500" onClick={() => navigate('/ride')} />
           <MenuIcon icon={<Utensils size={28} className="text-white" />} label="GonabFood" color="bg-red-500" onClick={() => navigate('/food')} />
           <MenuIcon icon={<Box size={28} className="text-white" />} label="GonabSend" color="bg-green-500" />
-          <MenuIcon icon={<ShoppingBag size={28} className="text-white" />} label="GonabMart" color="bg-red-500" />
-          <MenuIcon icon={<Smartphone size={28} className="text-white" />} label="Pulsa" color="bg-blue-400" />
+          <MenuIcon icon={<ShoppingBag size={28} className="text-white" />} label="GonabMart" color="bg-red-500" onClick={() => navigate('/gomart')} />
+          <MenuIcon icon={<Smartphone size={28} className="text-white" />} label="Pulsa" color="bg-blue-400" onClick={() => navigate('/pulsa')} />
           <MenuIcon icon={<Ticket size={28} className="text-white" />} label="Voucher" color="bg-yellow-500" />
           <MenuIcon icon={<MoreHorizontal size={28} className="text-gray-600" />} label="Lainnya" color="bg-gray-200" />
         </div>

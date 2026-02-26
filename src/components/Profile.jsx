@@ -1,3 +1,4 @@
+/* global __firebase_config, __app_id, __initial_auth_token */
 import React, { useState, useEffect } from "react";
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signOut, signInAnonymously, signInWithCustomToken } from "firebase/auth";
@@ -74,7 +75,7 @@ const Profile = () => {
       (error) => {
         // Fallback anggun: jika Firestore menolak akses (karena aturan keamanan), 
         // kita tetap gunakan data dasar dari Firebase Auth agar UI tidak rusak.
-        console.warn("Akses Firestore dibatasi, menggunakan data Auth lokal.");
+        console.warn("Akses Firestore dibatasi, menggunakan data Auth lokal.", error);
         setUserData(user);
         setLoading(false);
       }

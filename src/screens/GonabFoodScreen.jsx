@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Search, ChevronRight, Utensils, Star, MapPin, Clock, Ticket } from 'lucide-react';
+import { ChevronLeft, Search, Utensils, Star, MapPin, Clock } from 'lucide-react';
 
 const GonabFoodScreen = () => {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../firebaseConfig";
+import { db } from "../firebase";
 
 export const syncUserProfile = async (user) => {
   if (!user) return;

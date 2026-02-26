@@ -1,5 +1,6 @@
-import React from 'react';
-import { Bike, User, ShieldCheck, Activity, ChevronRight, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { RecaptchaVerifier, signInWithPhoneNumber, signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../../firebase';
 
 const LoginScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +47,7 @@ const LoginScreen = () => {
     setError('');
     try {
       await confirmationResult.confirm(otp);
-    } catch (err) {
+    } catch {
       setError('Kode OTP salah atau telah kedaluwarsa.');
     } finally {
       setIsLoading(false);
@@ -120,4 +121,6 @@ const LoginScreen = () => {
     </div>
   );
 };
+
+export default LoginScreen;
 

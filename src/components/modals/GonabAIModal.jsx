@@ -38,6 +38,7 @@ const GonabAIModal = ({ onClose }) => {
         const data = await response.json();
         return data.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, aku bingung mau jawab apa.";
       } catch (error) {
+        console.error('Gonab AI fetch error:', error);
         if (i === 5) return "Maaf ya, server Gonab AI lagi sibuk banget nih. Coba sapa aku lagi nanti!";
         await new Promise(r => setTimeout(r, delays[i]));
       }

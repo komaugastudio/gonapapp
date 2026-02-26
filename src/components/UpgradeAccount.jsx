@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { auth } from "../config/firebaseConfig"; // Sesuaikan path config Anda
+import { auth } from "../firebase"; // gunakan modul firebase utama
 import { GoogleAuthProvider, linkWithPopup } from "firebase/auth";
 import { syncUserProfile } from "../services/authService";
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, MapPin, Bike, Car, User, Clock, Wallet, Map as MapIcon } from 'lucide-react';
+import { ChevronLeft, MapPin, Bike, Car, User, Clock } from 'lucide-react';
 
 const GonabRideScreen = () => {
   const navigate = useNavigate();
