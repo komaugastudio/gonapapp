@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { RecaptchaVerifier, signInWithPhoneNumber, signInWithPopup } from 'firebase/auth';
+import React, { useState, useEffect } from 'react';
+import { RecaptchaVerifier, signInWithPhoneNumber, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 
 const LoginScreen = () => {
@@ -9,6 +9,23 @@ const LoginScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [confirmationResult, setConfirmationResult] = useState(null);
+
+  // Check for redirect result from Google login
+  useEffect(() => {
+    const checkRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          // User successfully signed in via redirect
+          console.log('Google login successful');
+        }
+      } catch (err) {
+        console.error('Error getting redirect result:', err);
+        setError('Gagal selesaikan login Google: ' + err.message);
+      }
+    };
+    checkRedirectResult();
+  }, []);
 
   const setupRecaptcha = () => {
     if (!window.recaptchaVerifier) {
@@ -58,11 +75,27 @@ const LoginScreen = () => {
     setIsLoading(true);
     setError('');
     try {
-      await signInWithPopup(auth, googleProvider);
+      // Try popup first (better UX if not blocked)
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        // Successfully signed in
+        console.log('Google login successful');
+      } catch (popupErr) {
+        if (popupErr.code === 'auth/popup-blocked') {
+          // Fallback to redirect if popup is blocked
+          console.log('Popup blocked, using redirect method...');
+          await signInWithRedirect(auth, googleProvider);
+        } else {
+          throw popupErr;
+        }
+      }
     } catch (err) {
-      if (err.code === 'auth/popup-closed-by-user') setError('Proses masuk dibatalkan.');
-      else setError('Gagal masuk: ' + err.message);
-    } finally {
+      console.error('Google login error:', err);
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError('Proses masuk dibatalkan.');
+      } else {
+        setError('Gagal masuk: ' + err.message);
+      }
       setIsLoading(false);
     }
   };

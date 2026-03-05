@@ -1,17 +1,19 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { ChevronLeft, ShoppingBag, Trash2, Plus, Minus } from 'lucide-react';
+import { ChevronLeft, ShoppingBag, Trash2, Plus, Minus, Loader } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { WalletContext } from '../context/WalletContext';
 import { formatRp } from '../utils/format';
-import { fetchProducts, submitOrder } from '../services/gomartService';
+import { auth } from '../firebase';
+import apiClient from '../services/apiClient';
 import Toast from '../components/ui/Toast';
+import Map from '../components/Map';
 
 // initial blank product list, fetched from service
 
 
 const GomartScreen = () => {
   const navigate = useNavigate();
-  const { balance, pay } = useContext(WalletContext);
+  const { balance, addTransaction } = useContext(WalletContext);
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState(() => {
     try {
@@ -30,10 +32,12 @@ const GomartScreen = () => {
     const load = async () => {
       if (mounted) setLoading(true);
       try {
-        const items = await fetchProducts();
-        if (mounted) setProducts(items);
+        const response = await apiClient.get('/products');
+        if (mounted && response.data && response.data.products) {
+          setProducts(response.data.products);
+        }
       } catch (e) {
-        console.error(e);
+        console.error('Error fetching products:', e);
         Toast('Gagal mengambil produk');
       } finally {
         if (mounted) setLoading(false);
@@ -86,21 +90,47 @@ const GomartScreen = () => {
 
     setCheckoutLoading(true);
     try {
-      const res = await submitOrder(cart);
-      if (res.success) {
-        const success = await pay(total);
-        if (success) {
-          setMessage('Pembelian berhasil!');
-          setCart([]);
-        } else {
-          setMessage('Saldo tidak cukup.');
-        }
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        setMessage('User tidak terautentikasi');
+        setCheckoutLoading(false);
+        return;
+      }
+
+      // Prepare order data for backend
+      const orderData = {
+        items: cart.map(item => ({
+          product_id: item.id,
+          quantity: item.qty,
+          price: item.price,
+        })),
+        total_amount: total,
+        payment_method: 'wallet',
+        delivery_address: 'Oyehe, Nabire, Papua Tengah',
+      };
+
+      // Call backend to create order
+      const response = await apiClient.post('/orders/gomart', orderData);
+
+      if (response.data && response.data.orderId) {
+        // Record transaction
+        await addTransaction(
+          'debit',
+          total,
+          'shopping',
+          `Pembelian di GonabMart (${cart.length} item)`,
+          response.data.orderId
+        );
+
+        setMessage('Pembelian berhasil!');
+        setCart([]);
+        localStorage.removeItem('gomartCart');
       } else {
-        setMessage(res.message || 'Gagal memproses pesanan');
+        setMessage(response.data?.message || 'Gagal memproses pesanan');
       }
     } catch (error) {
-      console.error(error);
-      setMessage('Terjadi kesalahan jaringan');
+      console.error('Checkout error:', error);
+      setMessage(error.response?.data?.message || 'Terjadi kesalahan jaringan');
     }
     setCheckoutLoading(false);
     setTimeout(() => setMessage(''), 2000);
@@ -108,11 +138,22 @@ const GomartScreen = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="bg-white p-4 shadow-sm flex items-center">
-        <button onClick={() => navigate(-1)} className="text-gray-700">
-          <ChevronLeft size={24} />
-        </button>
-        <h2 className="flex-1 text-center font-bold text-lg">GonabMart</h2>
+      <div className="sticky top-0 z-20 bg-white shadow-sm">
+        <div className="p-4 flex items-center">
+          <button onClick={() => navigate(-1)} className="text-gray-700">
+            <ChevronLeft size={24} />
+          </button>
+          <h2 className="flex-1 text-center font-bold text-lg">GonabMart</h2>
+        </div>
+
+        {/* Store Map */}
+        <div className="h-56 w-full border-t border-gray-100">
+          <Map 
+            pickup="Oyehe, Nabire, Papua Tengah"
+            height="100%"
+            onLocationSelect={(coords) => console.log('Store location:', coords)}
+          />
+        </div>
       </div>
 
       {message && (

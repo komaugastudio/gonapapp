@@ -1,7 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, Wallet, ScanLine, PlusCircle, QrCode, MoreHorizontal, Bike, Car, Utensils, Box, ShoppingBag, Smartphone, Ticket, User, ChevronRight, Sparkles, Bot, X } from 'lucide-react';
+import { Search, MapPin, Wallet, ScanLine, PlusCircle, QrCode, MoreHorizontal, Bike, Car, Utensils, Box, ShoppingBag, Smartphone, Ticket, User, Sparkles, Bot, X, Bell } from 'lucide-react';
 import { WalletContext } from '../context/WalletContext';
+import { useLanguage } from '../context/LanguageContext';
+import { useTranslation } from '../utils/translations';
 import { formatRp } from '../utils/format';
 import MenuIcon from '../components/ui/MenuIcon';
 import TopUpModal from '../components/modals/TopUpModal';
@@ -11,7 +13,9 @@ import GonabAIModal from '../components/modals/GonabAIModal';
 
 const HomeScreen = () => {
   const navigate = useNavigate();
-  const { balance } = useContext(WalletContext);
+  const { balance, loading } = useContext(WalletContext);
+  const { language } = useLanguage();
+  const { t } = useTranslation(language);
   const [modalType, setModalType] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -28,35 +32,50 @@ const HomeScreen = () => {
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gray-300 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">{t('loadingData')}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50 min-h-screen pb-6 relative">
       <div className="bg-white px-4 pt-6 pb-4 rounded-b-3xl shadow-sm relative z-20">
         <div className="flex items-center space-x-3 mb-4">
           <div className={`flex-grow flex items-center bg-gray-100 rounded-full px-4 py-2 border transition-colors ${isSearching ? 'border-green-500 ring-1 ring-green-500' : 'border-gray-200'}`}>
             <Search size={20} className={isSearching ? 'text-green-600 mr-2' : 'text-gray-400 mr-2'} />
-            <input type="text" placeholder="Cari layanan, makanan, & tujuan" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setIsSearching(true)} className="bg-transparent border-none focus:outline-none w-full text-sm" />
+            <input type="text" placeholder={t('search')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setIsSearching(true)} className="bg-transparent border-none focus:outline-none w-full text-sm" />
             {isSearching && <button onClick={() => {setIsSearching(false); setSearchQuery('');}} className="text-gray-400 ml-2 hover:text-gray-600"><X size={18} /></button>}
           </div>
-          <div className="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer" onClick={() => navigate('/profile')}>
+          <div className="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer hover:bg-red-200 transition-colors relative" onClick={() => navigate('/notifications')}>
+            <Bell size={20} />
+            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+          </div>
+          <div className="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer hover:bg-green-200 transition-colors" onClick={() => navigate('/profile')}>
             <User size={20} />
           </div>
         </div>
 
         {isSearching && (
           <div className="absolute top-full left-0 w-full bg-white shadow-lg rounded-b-2xl mt-1 py-2 px-4 border border-gray-100 max-h-80 overflow-y-auto z-50">
-            {searchQuery === '' ? <div className="py-4 text-center text-gray-400 text-sm">Ketik sesuatu...</div> : filteredSearch.length > 0 ? filteredSearch.map(item => (
+            {searchQuery === '' ? <div className="py-4 text-center text-gray-400 text-sm">{t('typeHere')}</div> : filteredSearch.length > 0 ? filteredSearch.map(item => (
                 <div key={item.id} onClick={() => navigate(item.link)} className="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer border-b border-gray-50 last:border-0">
                   <div className={`p-2 rounded-lg ${item.color}`}>{item.icon}</div>
                   <div><p className="font-semibold text-gray-800 text-sm">{item.name}</p><p className="text-xs text-gray-500">{item.type}</p></div>
                 </div>
-              )) : <div className="py-6 text-center text-gray-500 text-sm">Hasil tidak ditemukan.</div>}
+              )) : <div className="py-6 text-center text-gray-500 text-sm">{t('notFound')}</div>}
           </div>
         )}
 
         <div className="flex items-center text-sm text-gray-700">
           <MapPin size={16} className="text-green-600 mr-1" />
-          <span className="font-medium">Lokasi:</span>
-          <span className="ml-1 truncate font-bold">Kabupaten Nabire, Papua Tengah</span>
+          <span className="font-medium">{t('location')}</span>
+          <span className="ml-1 truncate font-bold">{t('kabupatenNabire')}</span>
         </div>
       </div>
 

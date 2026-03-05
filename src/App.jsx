@@ -51,7 +51,7 @@ function App() {
   return (
     <LanguageProvider>
       <WalletProvider>
-        <Router>
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <div className="flex flex-col min-h-screen bg-black font-sans">
             <main className="flex-grow max-w-md mx-auto w-full bg-white min-h-screen shadow-2xl relative overflow-x-hidden pb-20">
               <Routes>

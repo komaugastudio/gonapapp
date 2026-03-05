@@ -1,10 +1,14 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Ticket, CreditCard, User } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
+import { useTranslation } from '../../utils/translations';
 
 const BottomNav = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { language } = useLanguage();
+  const { t } = useTranslation(language);
 
   if (currentPath === '/ride' || currentPath === '/food') return null;
 
@@ -12,7 +16,7 @@ const BottomNav = () => {
     <div className="fixed bottom-0 w-full max-w-md bg-white border-t border-gray-100 flex justify-around items-center pt-3 pb-5 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] z-40">
       <Link to="/" className={`flex flex-col items-center space-y-1 ${currentPath === '/' ? 'text-green-600' : 'text-gray-400 hover:text-gray-600'}`}>
         <Home size={24} className={currentPath === '/' ? 'fill-current' : ''} />
-        <span className="text-[10px] font-semibold">Beranda</span>
+        <span className="text-[10px] font-semibold">{t('home')}</span>
       </Link>
       <Link to="/promo" className={`flex flex-col items-center space-y-1 ${currentPath === '/promo' ? 'text-green-600' : 'text-gray-400 hover:text-gray-600'}`}>
         <Ticket size={24} />
@@ -24,7 +28,7 @@ const BottomNav = () => {
       </Link>
       <Link to="/profile" className={`flex flex-col items-center space-y-1 ${currentPath === '/profile' ? 'text-green-600' : 'text-gray-400 hover:text-gray-600'}`}>
         <User size={24} className={currentPath === '/profile' ? 'fill-current' : ''} />
-        <span className="text-[10px] font-semibold">Profil</span>
+        <span className="text-[10px] font-semibold">{t('profile')}</span>
       </Link>
     </div>
   );

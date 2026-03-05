@@ -1,18 +1,20 @@
 import React, { useState, useContext } from 'react';
-import { ChevronLeft, Smartphone } from 'lucide-react';
+import { ChevronLeft, Smartphone, RefreshCw, Loader } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { WalletContext } from '../context/WalletContext';
 import { formatRp } from '../utils/format';
-import { buyPulsa } from '../services/pulsaService';
-import Toast from '../components/ui/Toast';
+import { auth } from '../firebase';
+import apiClient from '../services/apiClient';
 
 const PulsaScreen = () => {
   const navigate = useNavigate();
-  const { balance, pay } = useContext(WalletContext);
+  const { balance, addTransaction } = useContext(WalletContext);
   const [phone, setPhone] = useState('');
   const [amount, setAmount] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checkingBalance, setCheckingBalance] = useState(false);
+  const [telkomselBalance, setTelkomselBalance] = useState(null);
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState('');
   const [otpInput, setOtpInput] = useState('');
@@ -20,6 +22,38 @@ const PulsaScreen = () => {
   const validatePhone = (num) => {
     // simple pattern: starts with 08, 10-13 digits total
     return /^08\d{8,11}$/.test(num.replace(/\s+/g, ''));
+  };
+
+  const handleCheckBalance = async () => {
+    if (!phone) {
+      setMessage('Masukkan nomor HP terlebih dahulu');
+      setTimeout(() => setMessage(''), 2000);
+      return;
+    }
+    if (!validatePhone(phone)) {
+      setMessage('Format nomor HP tidak valid');
+      setTimeout(() => setMessage(''), 2000);
+      return;
+    }
+
+    setCheckingBalance(true);
+    try {
+      const response = await apiClient.get('/pulsa/check-balance', {
+        params: { phoneNumber: phone }
+      });
+      if (response.data && response.data.balance !== null) {
+        setTelkomselBalance(response.data.balance);
+        setMessage(`Saldo Telkomsel: ${formatRp(response.data.balance)}`);
+      } else {
+        setMessage(response.data?.message || 'Gagal mengecek saldo');
+        setTelkomselBalance(null);
+      }
+    } catch (error) {
+      console.error('Error checking balance:', error);
+      setMessage(error.response?.data?.message || 'Terjadi kesalahan saat mengecek saldo');
+      setTelkomselBalance(null);
+    }
+    setCheckingBalance(false);
   };
 
   const handleBuy = async () => {
@@ -56,7 +90,8 @@ const PulsaScreen = () => {
       setOtpCode(code);
       setOtpSent(true);
       // in real app you would send code via SMS
-      Toast(`OTP dikirim: ${code}`);
+      setMessage(`OTP dikirim: ${code}`);
+      setTimeout(() => setMessage(''), 4000);
       return;
     }
 
@@ -69,25 +104,40 @@ const PulsaScreen = () => {
 
     setLoading(true);
     try {
-      // call backend purchase
-      const res = await buyPulsa({ phone, amount: val });
-      if (res.success) {
-        const paid = await pay(val);
-        if (paid) {
-          setMessage('Pulsa berhasil dibeli!');
-          setPhone('');
-          setAmount('');
-          setOtpInput('');
-          setOtpSent(false);
-        } else {
-          setMessage('Saldo tidak cukup.');
-        }
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        setMessage('User tidak terautentikasi');
+        setLoading(false);
+        return;
+      }
+
+      // Call backend to purchase pulsa
+      const response = await apiClient.post('/pulsa/buy', {
+        phoneNumber: phone,
+        amount: val,
+      });
+
+      if (response.data && response.data.pulsaId) {
+        // Record transaction
+        await addTransaction(
+          'debit',
+          val,
+          'pulsa',
+          `Beli pulsa ke ${phone}`,
+          response.data.pulsaId
+        );
+
+        setMessage('Pulsa berhasil dibeli!');
+        setPhone('');
+        setAmount('');
+        setOtpInput('');
+        setOtpSent(false);
       } else {
-        setMessage(res.message || 'Transaksi gagal');
+        setMessage(response.data?.message || 'Transaksi gagal');
       }
     } catch (error) {
-      console.error(error);
-      setMessage('Terjadi kesalahan jaringan');
+      console.error('Error buying pulsa:', error);
+      setMessage(error.response?.data?.message || 'Terjadi kesalahan jaringan');
     }
     setLoading(false);
     setTimeout(() => setMessage(''), 2000);
@@ -107,15 +157,31 @@ const PulsaScreen = () => {
       <div className="p-4 space-y-4">
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-1">Nomor HP</label>
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-            placeholder="08XXXXXXXXXX"
-            disabled={otpSent}
-          />
+          <div className="flex gap-2">
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+              placeholder="08XXXXXXXXXX"
+              disabled={otpSent}
+            />
+            <button
+              onClick={handleCheckBalance}
+              disabled={checkingBalance || otpSent}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1"
+            >
+              <RefreshCw size={18} />
+            </button>
+          </div>
         </div>
+
+        {telkomselBalance !== null && (
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-3 rounded">
+            <p className="text-sm text-gray-600">Saldo Telkomsel:</p>
+            <p className="text-lg font-bold text-blue-600">{formatRp(telkomselBalance)}</p>
+          </div>
+        )}
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-1">Jumlah (Rp)</label>
           <input
@@ -143,10 +209,15 @@ const PulsaScreen = () => {
           <span>Saldo: {formatRp(balance)}</span>
           <button
             onClick={handleBuy}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50 flex items-center gap-2"
             disabled={loading}
           >
-            {loading ? 'Memproses...' : otpSent ? 'Konfirmasi OTP' : 'Beli'}
+            {loading ? (
+              <>
+                <Loader size={16} className="animate-spin" />
+                Memproses...
+              </>
+            ) : otpSent ? 'Konfirmasi OTP' : 'Beli'}
           </button>
         </div>
       </div>
